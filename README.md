@@ -1,5 +1,6 @@
-# Base44 App
+# HEAUT
 
+Aura Journal - A modern journaling application built with React and Vite.
 
 This app was created automatically by Base44.
 It's a Vite+React app that communicates with the Base44 API.
