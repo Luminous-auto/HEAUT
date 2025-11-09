@@ -152,7 +152,7 @@ function PagesContent() {
 
 export default function Pages() {
     return (
-        <Router>
+        <Router basename="/HEAUT">
             <PagesContent />
         </Router>
     );
