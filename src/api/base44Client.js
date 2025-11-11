@@ -2,16 +2,37 @@
 // This prevents API calls that cause 404 errors
 // IMPORTANT: For static landing page, we use mock client to avoid loading Base44 SDK
 const createMockClient = () => {
+  // Demo user data for static landing page display
+  const demoUser = {
+    id: 'demo-user-123',
+    email: 'demo@heaut.app',
+    username: 'Demo User',
+    language: 'en',
+    tokens: 100,
+    ai_access_authorized: false,
+    is_helper: false,
+    helper_roles: [],
+    helper_bio: '',
+    helper_availability: false,
+    emergency_contact_name: '',
+    emergency_contact_phone: '',
+    emergency_contact_relationship: '',
+  };
+
   const mockAuth = {
     isAuthenticated: async () => {
-      // Return false immediately without any API calls
+      // Return false for static display (no real auth)
+      // But we'll still provide demo user data for UI display
       return false;
     },
     me: async () => {
-      throw new Error('Not authenticated - mock mode');
+      // Return demo user for static landing page display
+      // This allows pages to render properly without real authentication
+      return demoUser;
     },
     updateMe: async () => {
-      throw new Error('Not authenticated - mock mode');
+      // Silently fail in mock mode
+      return demoUser;
     },
     logout: async () => {
       // Do nothing
