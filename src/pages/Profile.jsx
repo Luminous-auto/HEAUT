@@ -27,22 +27,13 @@ export default function ProfilePage() {
     const [isSuccess, setIsSuccess] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const { data: user, isLoading: isLoadingUser, error: userError } = useQuery({
+    const { data: user, isLoading: isLoadingUser } = useQuery({
         queryKey: ['currentUser'],
         queryFn: () => base44.auth.me(),
-        retry: false,
     });
 
-    // Show demo content if not authenticated (for static landing page)
-    const isDemoMode = !user && !isLoadingUser;
-    const displayUser = user || (isDemoMode ? {
-        email: 'demo@example.com',
-        id: 'demo-user-id',
-        username: 'Demo User'
-    } : null);
-
     useEffect(() => {
-        if (user && !isDemoMode) {
+        if (user) {
             setFormData({
                 username: user.username || '',
                 emergency_contact_name: user.emergency_contact_name || '',
@@ -55,7 +46,7 @@ export default function ProfilePage() {
                 helper_availability: user.helper_availability !== undefined ? user.helper_availability : true,
             });
         }
-    }, [user, isDemoMode]);
+    }, [user]);
 
     const updateProfileMutation = useMutation({
         mutationFn: (profileData) => base44.auth.updateMe(profileData),
@@ -134,19 +125,6 @@ export default function ProfilePage() {
             </div>
         );
     }
-
-    if (!displayUser) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Card className="max-w-md">
-                    <CardHeader>
-                        <CardTitle>Profile</CardTitle>
-                        <CardDescription>Please sign in to view your profile.</CardDescription>
-                    </CardHeader>
-                </Card>
-            </div>
-        );
-    }
     
     return (
         <div className="min-h-screen">
@@ -168,22 +146,15 @@ export default function ProfilePage() {
                             <CardDescription>This information will be displayed on your profile.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            {isDemoMode && (
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                                    <p className="text-sm text-blue-800">
-                                        This is a demo view. Sign in to access your actual profile.
-                                    </p>
-                                </div>
-                            )}
                             <div className="space-y-2">
                                 <label className="font-medium text-stone-700 text-sm">Email Address</label>
-                                <Input value={displayUser.email} readOnly disabled className="bg-stone-100" />
+                                <Input value={user.email} readOnly disabled className="bg-stone-100" />
                             </div>
                             <div className="space-y-2">
                                 <label className="font-medium text-stone-700 text-sm">System ID</label>
                                 <div className="flex items-center gap-2">
-                                    <Input value={displayUser.id} readOnly disabled className="bg-stone-100" />
-                                    <Button type="button" variant="outline" size="icon" onClick={() => copyToClipboard(displayUser.id)}>
+                                    <Input value={user.id} readOnly disabled className="bg-stone-100" />
+                                    <Button type="button" variant="outline" size="icon" onClick={() => copyToClipboard(user.id)}>
                                         {copied ? <CheckCircle className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                                     </Button>
                                 </div>
@@ -343,14 +314,10 @@ export default function ProfilePage() {
 
                     <Card>
                         <CardFooter className="flex justify-end pt-6">
-                            <Button 
-                                type="submit" 
-                                disabled={updateProfileMutation.isPending || isSuccess || isDemoMode} 
-                                className="bg-stone-900 hover:bg-stone-800"
-                            >
+                            <Button type="submit" disabled={updateProfileMutation.isPending || isSuccess} className="bg-stone-900 hover:bg-stone-800">
                                 {updateProfileMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                                 {isSuccess && <CheckCircle className="w-4 h-4 mr-2" />}
-                                {isDemoMode ? 'Sign in to Save' : (isSuccess ? 'Saved!' : 'Save Changes')}
+                                {isSuccess ? 'Saved!' : 'Save Changes'}
                             </Button>
                         </CardFooter>
                     </Card>
