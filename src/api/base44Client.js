@@ -1,20 +1,41 @@
 // Mock Base44 client for static landing page
 // This prevents API calls that cause 404 errors
+// IMPORTANT: For static landing page, we use mock client to avoid loading Base44 SDK
 const createMockClient = () => {
   const mockAuth = {
-    isAuthenticated: () => Promise.resolve(false),
-    me: () => Promise.reject(new Error('Not authenticated')),
-    updateMe: () => Promise.reject(new Error('Not authenticated')),
-    logout: () => Promise.resolve(),
-    redirectToLogin: () => {},
+    isAuthenticated: async () => {
+      // Return false immediately without any API calls
+      return false;
+    },
+    me: async () => {
+      throw new Error('Not authenticated - mock mode');
+    },
+    updateMe: async () => {
+      throw new Error('Not authenticated - mock mode');
+    },
+    logout: async () => {
+      // Do nothing
+    },
+    redirectToLogin: () => {
+      // Do nothing - prevent redirects
+    },
   };
 
   const createMockEntity = () => ({
-    list: () => Promise.resolve([]),
-    create: () => Promise.reject(new Error('Mock mode - static landing page')),
-    get: () => Promise.reject(new Error('Mock mode - static landing page')),
-    update: () => Promise.reject(new Error('Mock mode - static landing page')),
-    delete: () => Promise.reject(new Error('Mock mode - static landing page')),
+    list: async () => [],
+    create: async () => {
+      throw new Error('Mock mode - static landing page');
+    },
+    get: async () => {
+      throw new Error('Mock mode - static landing page');
+    },
+    update: async () => {
+      throw new Error('Mock mode - static landing page');
+    },
+    delete: async () => {
+      throw new Error('Mock mode - static landing page');
+    },
+    filter: async () => [],
   });
 
   const mockEntities = {
@@ -27,17 +48,32 @@ const createMockClient = () => {
     TokenTransaction: createMockEntity(),
     SelfAwarenessAnalysis: createMockEntity(),
     SoulMateMatch: createMockEntity(),
+    User: createMockEntity(),
   };
 
   const mockIntegrations = {
     Core: {
-      InvokeLLM: () => Promise.reject(new Error('Mock mode - static landing page')),
-      SendEmail: () => Promise.reject(new Error('Mock mode - static landing page')),
-      UploadFile: () => Promise.reject(new Error('Mock mode - static landing page')),
-      GenerateImage: () => Promise.reject(new Error('Mock mode - static landing page')),
-      ExtractDataFromUploadedFile: () => Promise.reject(new Error('Mock mode - static landing page')),
-      CreateFileSignedUrl: () => Promise.reject(new Error('Mock mode - static landing page')),
-      UploadPrivateFile: () => Promise.reject(new Error('Mock mode - static landing page')),
+      InvokeLLM: async () => {
+        throw new Error('Mock mode - static landing page');
+      },
+      SendEmail: async () => {
+        throw new Error('Mock mode - static landing page');
+      },
+      UploadFile: async () => {
+        throw new Error('Mock mode - static landing page');
+      },
+      GenerateImage: async () => {
+        throw new Error('Mock mode - static landing page');
+      },
+      ExtractDataFromUploadedFile: async () => {
+        throw new Error('Mock mode - static landing page');
+      },
+      CreateFileSignedUrl: async () => {
+        throw new Error('Mock mode - static landing page');
+      },
+      UploadPrivateFile: async () => {
+        throw new Error('Mock mode - static landing page');
+      },
     },
   };
 
@@ -48,21 +84,6 @@ const createMockClient = () => {
   };
 };
 
-// Use mock client for static landing page
-// Set to false to use real Base44 client (requires valid appId)
-const USE_MOCK_CLIENT = true;
-
-export const base44 = USE_MOCK_CLIENT 
-  ? createMockClient()
-  : (() => {
-      try {
-        const { createClient } = require('@base44/sdk');
-        return createClient({
-          appId: "68ee6d310bf4120a9c91f52b", 
-          requiresAuth: false
-        });
-      } catch (error) {
-        console.warn('Failed to create Base44 client, using mock:', error);
-        return createMockClient();
-      }
-    })();
+// Always use mock client for static landing page deployment
+// This completely avoids loading the Base44 SDK and making any API calls
+export const base44 = createMockClient();
